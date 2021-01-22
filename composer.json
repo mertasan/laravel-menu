@@ -1,0 +1,43 @@
+{
+    "name": "mertasan/laravel-menu",
+    "description": "A quick way to create menus in Laravel",
+    "keywords": [
+        "laravel",
+        "laravel menu",
+        "menu",
+        "menu builder"
+    ],
+    "homepage": "https://github.com/mertasan/laravel-menu",
+    "license": "MIT",
+    "type": "library",
+    "authors": [
+        {
+            "name": "Mert Aşan",
+            "email": "mertemreasan@gmail.com"
+        },
+        {
+            "name": "Lavary",
+            "email": "mrl.8081@gmail.com"
+        }
+    ],
+    "require": {
+        "php": "^7.4.0|^8.0",
+        "laravel/framework": "^7.0|^8.0"
+    },
+    "autoload": {
+        "psr-0": {
+            "Mertasan\\Menu\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Mertasan\\Menu\\MenuServiceProvider"
+            ],
+            "aliases": {
+                "Menu": "Mertasan\\Menu\\Facades\\Menu"
+            }
+        }
+    },
+    "minimum-stability": "dev"
+}
