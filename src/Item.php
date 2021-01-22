@@ -156,7 +156,7 @@ class Item
      * @param string|array $options
      * @return Item
      */
-    public function add(string $title, $options = '')
+    public function add(string $title, $options = ''): Item
     {
         if (!is_array($options)) {
             $url = $options;
@@ -225,11 +225,15 @@ class Item
             $this->attributes = array_merge($this->attributes, $args[0]);
 
             return $this;
-        } elseif (isset($args[0], $args[1])) {
+        }
+
+        if (isset($args[0], $args[1])) {
             $this->attributes[$args[0]] = $args[1];
 
             return $this;
-        } elseif (isset($args[0])) {
+        }
+
+        if (isset($args[0])) {
             return $this->attributes[$args[0]] ?? null;
         }
 
@@ -239,21 +243,23 @@ class Item
     /**
      * Generate URL for link.
      *
-     * @return string
+     * @return string|null
      */
-    public function url(): string
+    public function url(): ?string
     {
         // If the item has a link proceed:
         if (!is_null($this->link)) {
             // If item's link has `href` property explicitly defined
             // return it
-            if ($this->link->href) {
-                return $this->link->href;
+            if ($this->link->getHref()) {
+                return $this->link->getHref();
             }
 
             // Otherwise dispatch to the proper address
-            return $this->builder->dispatch($this->link->path);
+            return $this->builder->dispatch($this->link->getPath());
         }
+
+        return null;
     }
 
     /**
@@ -315,7 +321,7 @@ class Item
      */
     public function hasChildren(): bool
     {
-        return count($this->builder->whereParent($this->id)) or false;
+        return count($this->builder->whereParent($this->id)) ?: false;
     }
 
     /**
@@ -366,14 +372,15 @@ class Item
         if (true === $this->disableActivationByURL) {
             return;
         }
-        if (true === $this->builder->conf['restful']) {
+        if (true === $this->builder->conf('restful')) {
             $path = ltrim(parse_url($this->url(), PHP_URL_PATH), '/');
             $rpath = ltrim(parse_url(Request::path(), PHP_URL_PATH), '/');
 
-            if ($this->builder->conf['rest_base']) {
-                $base = (is_array($this->builder->conf['rest_base'])) ? implode('|', $this->builder->conf['rest_base']) : $this->builder->conf['rest_base'];
+            $restBase = $this->builder->conf('rest_base');
+            if ($restBase) {
+                $base = (is_array($restBase) ? implode('|', $restBase) : $restBase);
 
-                list($path, $rpath) = preg_replace('@^('.$base.')/@', '', [$path, $rpath], 1);
+                [$path, $rpath] = preg_replace('@^(' . $base . ')/@', '', [$path, $rpath], 1);
             }
 
             if (preg_match("@^{$path}(/.+)?\z@", $rpath)) {
@@ -381,7 +388,8 @@ class Item
             }
         } else {
             // We should consider a $strict config. If $strict then only match against fullURL.
-            if ($this->url() === Request::url() || $this->url() === Request::fullUrl()) {
+            $url = $this->url();
+            if ($url === Request::url() || $url === Request::fullUrl()) {
                 $this->activate();
             }
         }
@@ -390,7 +398,7 @@ class Item
     /**
      * Set nickname for the item manually.
      *
-     * @param ?string $nickname
+     * @param string|null $nickname
      *
      * @return Item
      */
@@ -491,21 +499,25 @@ class Item
             $this->data = array_merge($this->data, array_change_key_case($args[0]));
 
             // Cascade data to item's children if cascade_data option is enabled
-            if ($this->builder->conf['cascade_data']) {
+            if ($this->builder->conf('cascade_data')) {
                 $this->cascade_data($args);
             }
 
             return $this;
-        } elseif (isset($args[0], $args[1])) {
+        }
+
+        if (isset($args[0], $args[1])) {
             $this->data[strtolower($args[0])] = $args[1];
 
             // Cascade data to item's children if cascade_data option is enabled
-            if ($this->builder->conf['cascade_data']) {
+            if ($this->builder->conf('cascade_data')) {
                 $this->cascade_data($args);
             }
 
             return $this;
-        } elseif (isset($args[0])) {
+        }
+
+        if (isset($args[0])) {
             return $this->data[$args[0]] ?? null;
         }
 

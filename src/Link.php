@@ -64,6 +64,26 @@ class Link
         return $this;
     }
 
+
+    /**
+     * @return array
+     */
+    public function getPath(): array
+    {
+        return $this->path;
+    }
+
+    /**
+     * Get Anchor's href property.
+     *
+     * @return string|null
+     */
+    public function getHref(): ?string
+    {
+        return $this->href ?? null;
+
+    }
+
     /**
      * Set Anchor's href property.
      *

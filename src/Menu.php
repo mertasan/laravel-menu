@@ -18,9 +18,9 @@ class Menu
     /**
      * List of menu builders.
      *
-     * @var []Builder
+     * @var Builder[]
      */
-    protected $menu = [];
+    protected array $menu = [];
 
     /**
      * Initializing the Menu manager

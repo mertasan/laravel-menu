@@ -5,6 +5,13 @@ namespace Mertasan\Menu;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\URL;
 
+/**
+ * @method mixed whereNickname(string $nickname);
+ * @method mixed whereId(mixed $id);
+ * @method mixed whereActive(bool $status);
+ * @method mixed whereParent(mixed $parent = null, bool $cond = false);
+ * @method mixed hasProperty(string $attribute);
+ */
 class Builder
 {
     /**
@@ -65,7 +72,7 @@ class Builder
      * @param string|array $options
      * @return Item
      */
-    public function add(string $title, $options = '')
+    public function add(string $title, $options = ''): Item
     {
         $id = $options['id'] ?? $this->id();
 
@@ -128,9 +135,9 @@ class Builder
     /**
      * Return all items in the collection.
      *
-     * @return \Mertasan\Menu\Collection
+     * @return Collection
      */
-    public function all(): \Mertasan\Menu\Collection
+    public function all(): Collection
     {
         return $this->items;
     }
@@ -297,7 +304,7 @@ class Builder
      */
     public static function formatGroupClass(array $new, array $old): string
     {
-        if (isset($new['class']) and $new['class'] !== null) {
+        if (isset($new['class']) && $new['class'] !== null) {
             $classes = trim(trim(Arr::get($old, 'class')).' '.trim(Arr::get($new, 'class')));
 
             return implode(' ', array_unique(explode(' ', $classes)));
@@ -337,18 +344,21 @@ class Builder
         // We will also check for a "route" or "action" parameter on the array so that
         // developers can easily specify a route or controller action when creating the
         // menus.
-        if (isset($options['url'])) {
+        if(isset($options['url'])) {
             return $this->getUrl($options);
-        } elseif (isset($options['route'])) {
+        }
+
+        if(isset($options['route'])) {
             return $this->getRoute($options['route']);
+        }
+
+        if (isset($options['action'])) {
+            return $this->getControllerAction($options['action']);
         }
 
         // If an action is available, we are attempting to point the link to controller
         // action route. So, we will use the URL generator to get the path to these
         // actions and return them from the method. Otherwise, we'll use current.
-        elseif (isset($options['action'])) {
-            return $this->getControllerAction($options['action']);
-        }
 
         return null;
     }
@@ -398,7 +408,7 @@ class Builder
      */
     public static function isAbs(string $url): bool
     {
-        return parse_url($url, PHP_URL_SCHEME) or false;
+        return parse_url($url, PHP_URL_SCHEME) ?: false;
     }
 
     /**
@@ -436,9 +446,9 @@ class Builder
     /**
      * Returns items with no parent.
      *
-     * @return \Illuminate\Support\Collection
+     * @return \Illuminate\Support\Collection|\Mertasan\Menu\Builder
      */
-    public function roots(): \Illuminate\Support\Collection
+    public function roots()
     {
         return $this->whereParent();
     }
@@ -530,7 +540,9 @@ class Builder
      */
     public function topMenu(): Builder
     {
-        return $this->spawn('topLevel', $this->roots());
+        /** @var Collection|\Mertasan\Menu\Builder $roots */
+        $roots = $this->roots();
+        return $this->spawn('topLevel', $roots);
     }
 
     /**
@@ -542,7 +554,8 @@ class Builder
     {
         $nb = $this->spawn('subMenu', new Collection());
 
-        $subs = $this->active()->children();
+        $active = $this->active();
+        $subs = $active ? $active->children() : [];
         foreach ($subs as $s) {
             $nb->add($s->title, $s->url());
         }
@@ -559,7 +572,8 @@ class Builder
     {
         $nb = $this->spawn('siblingMenu', new Collection());
 
-        $parent = $this->active()->parent();
+        $active = $this->active();
+        $parent = $active ? $active->parent() : false;
         if ($parent) {
             $siblings = $parent->children();
         } else {
@@ -585,14 +599,16 @@ class Builder
         $nb = $this->spawn('crumbMenu', new Collection());
 
         $item = $this->active();
-        $items = [$item];
-        while ($item->hasParent()) {
-            $item = $item->parent();
-            array_unshift($items, $item);
-        }
+        if ($item) {
+            $items = [$item];
+            while ($item->hasParent()) {
+                $item = $item->parent();
+                array_unshift($items, $item);
+            }
 
-        foreach ($items as $item) {
-            $nb->add($item->title, $item->url());
+            foreach ($items as $item) {
+                $nb->add($item->title, $item->url());
+            }
         }
 
         return $nb;
@@ -605,12 +621,12 @@ class Builder
      * @param mixed      $parent
      * @param array    $children_attributes
      * @param array    $item_attributes
-     * @param callable $item_after_calback
+     * @param callable $item_after_callback
      * @param array    $item_after_callback_params
      *
      * @return string
      */
-    public function render($type = 'ul', $parent = null, $children_attributes = [], $item_attributes = [], $item_after_calback = null, $item_after_callback_params = []): string
+    public function render($type = 'ul', $parent = null, $children_attributes = [], $item_attributes = [], $item_after_callback = null, $item_after_callback_params = []): string
     {
         $items = '';
 
@@ -619,8 +635,8 @@ class Builder
         foreach ($this->whereParent($parent) as $item) {
             if ($item->link) {
                 $link_attr = $item->link->attr();
-                if (is_callable($item_after_calback)) {
-                    call_user_func_array($item_after_calback, [
+                if (is_callable($item_after_callback)) {
+                    call_user_func_array($item_after_callback, [
                         $item,
                         &$children_attributes,
                         &$item_attributes,
@@ -644,7 +660,7 @@ class Builder
             if ($item->hasChildren()) {
                 $items .= '<'.$type.self::attributes($children_attributes).'>';
                 // Recursive call to children.
-                $items .= $this->render($type, $item->id, $children_attributes, $item_attributes, $item_after_calback, $item_after_callback_params);
+                $items .= $this->render($type, $item->id, $children_attributes, $item_attributes, $item_after_callback, $item_after_callback_params);
                 $items .= "</{$type}>";
             }
 
@@ -664,14 +680,14 @@ class Builder
      * @param array    $attributes
      * @param array    $children_attributes
      * @param array    $item_attributes
-     * @param callable $item_after_calback
+     * @param callable $item_after_callback
      * @param array    $item_after_callback_params
      *
      * @return string
      */
-    public function asUl($attributes = [], $children_attributes = [], $item_attributes = [], $item_after_calback = null, $item_after_callback_params = []): string
+    public function asUl($attributes = [], $children_attributes = [], $item_attributes = [], $item_after_callback = null, $item_after_callback_params = []): string
     {
-        return '<ul'.self::attributes($attributes).'>'.$this->render('ul', null, $children_attributes, $item_attributes, $item_after_calback, $item_after_callback_params).'</ul>';
+        return '<ul'.self::attributes($attributes).'>'.$this->render('ul', null, $children_attributes, $item_attributes, $item_after_callback, $item_after_callback_params).'</ul>';
     }
 
     /**
@@ -680,14 +696,14 @@ class Builder
      * @param array    $attributes
      * @param array    $children_attributes
      * @param array    $item_attributes
-     * @param callable $item_after_calback
+     * @param callable $item_after_callback
      * @param array    $item_after_callback_params
      *
      * @return string
      */
-    public function asOl($attributes = [], $children_attributes = [], $item_attributes = [], $item_after_calback = null, $item_after_callback_params = []): string
+    public function asOl($attributes = [], $children_attributes = [], $item_attributes = [], $item_after_callback = null, $item_after_callback_params = []): string
     {
-        return '<ol'.self::attributes($attributes).'>'.$this->render('ol', null, $children_attributes, $item_attributes, $item_after_calback, $item_after_callback_params).'</ol>';
+        return '<ol'.self::attributes($attributes).'>'.$this->render('ol', null, $children_attributes, $item_attributes, $item_after_callback, $item_after_callback_params).'</ol>';
     }
 
     /**
@@ -696,14 +712,14 @@ class Builder
      * @param array    $attributes
      * @param array    $children_attributes
      * @param array    $item_attributes
-     * @param callable $item_after_calback
+     * @param callable $item_after_callback
      * @param array    $item_after_callback_params
      *
      * @return string
      */
-    public function asDiv($attributes = [], $children_attributes = [], $item_attributes = [], $item_after_calback = null, $item_after_callback_params = []): string
+    public function asDiv($attributes = [], $children_attributes = [], $item_attributes = [], $item_after_callback = null, $item_after_callback_params = []): string
     {
-        return '<div'.self::attributes($attributes).'>'.$this->render('div', null, $children_attributes, $item_attributes, $item_after_calback, $item_after_callback_params).'</div>';
+        return '<div'.self::attributes($attributes).'>'.$this->render('div', null, $children_attributes, $item_attributes, $item_after_callback, $item_after_callback_params).'</div>';
     }
 
     /**
@@ -717,7 +733,7 @@ class Builder
     {
         $html = [];
 
-        foreach ((array) $attributes as $key => $value) {
+        foreach ($attributes as $key => $value) {
             $element = self::attributeElement($key, $value);
             if (!is_null($element)) {
                 $html[] = $element;
@@ -750,11 +766,12 @@ class Builder
      * Return configuration value by key.
      *
      * @param string $key
-     * @return string
+     * @param mixed  $default
+     * @return string|null
      */
-    public function conf(string $key): string
+    public function conf(string $key, $default = null): ?string
     {
-        return $this->conf[$key];
+        return $this->conf[$key] ?? null;
     }
 
     /**
@@ -802,6 +819,7 @@ class Builder
                     $collection = $collection->merge($this->filterRecursive($attribute, $item->id));
                 }
             }
+            return $collection;
         });
 
         return $collection;
@@ -847,6 +865,7 @@ class Builder
     /**
      * Returns menu item by name.
      *
+     * @param $prop
      * @return Item
      */
     public function __get($prop)

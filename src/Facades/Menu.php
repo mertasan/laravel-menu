@@ -2,16 +2,10 @@
 
 namespace Mertasan\Menu\Facades;
 
-use Illuminate\Support\Facades\Facade;
-
-class Menu extends Facade
+class Menu extends \Illuminate\Support\Facades\Facade
 {
-    /**
-     * Get the registered name of the component.
-     *
-     * @return string
-     */
-    protected static function getFacadeAccessor(): string
+
+    protected static function getFacadeAccessor()
     {
         return 'menu';
     }
