@@ -344,11 +344,11 @@ class Builder
         // We will also check for a "route" or "action" parameter on the array so that
         // developers can easily specify a route or controller action when creating the
         // menus.
-        if(isset($options['url'])) {
+        if (isset($options['url'])) {
             return $this->getUrl($options);
         }
 
-        if(isset($options['route'])) {
+        if (isset($options['route'])) {
             return $this->getRoute($options['route']);
         }
 
@@ -772,6 +772,35 @@ class Builder
     public function conf(string $key, $default = null): ?string
     {
         return $this->conf[$key] ?? null;
+    }
+
+    /**
+     * Add custom options
+     * One-time special additions can be made to the options to be applied to the menu.
+     *
+     * @param array       $options
+     * @param string|null $optionsFrom (optional, if you want to use the options of another
+     *                                 menu instead of "default" options, enter another menu name.)
+     * @return void
+     */
+    public function options(array $options, ?string $optionsFrom = 'default'): void
+    {
+        if ($optionsFrom === null) {
+            $this->conf = $options;
+        } else {
+            $defaultOptions = config('laravel-menu.settings');
+            $name = strtolower($optionsFrom);
+            $currentName = strtolower($this->name);
+            $menuOptions = false;
+
+            if ($name !== 'default' && isset($defaultOptions[$name]) && is_array($defaultOptions[$name])) {
+                $menuOptions = $defaultOptions[$name];
+            } else if (isset($defaultOptions[$currentName]) && is_array($defaultOptions[$currentName])) {
+                $menuOptions = $defaultOptions[$currentName];
+            }
+
+            $this->conf = array_merge($defaultOptions["default"], ($menuOptions ?: []), $options);
+        }
     }
 
     /**
