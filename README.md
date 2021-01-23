@@ -172,6 +172,13 @@ This will render your menu like so:
 ```
 And that's all about it!
 
+For type hinting, you can use it as follows
+
+```php
+    \Menu::make('MyNavBar', function (\Mertasan\Menu\Builder $menu) {
+        ...
+    });
+```
 
 ## Routing
 
