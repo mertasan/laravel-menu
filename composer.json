@@ -8,7 +8,7 @@
         "menu builder"
     ],
     "homepage": "https://github.com/mertasan/laravel-menu",
-    "license": "MIT",
+    "license": "GPL-3.0-or-later",
     "type": "library",
     "authors": [
         {
