@@ -322,7 +322,7 @@ class Item
      * @param bool        $isAppend
      * @return string
      */
-    private function addSvg (string $path, $class, $attributes, $mergeAttributes, $isAppend = false): string
+    private function addSvg (string $path, $class, $attributes, $mergeAttributes, $isAppend = false): void
     {
 
         if (isset($attributes['class'])) {
