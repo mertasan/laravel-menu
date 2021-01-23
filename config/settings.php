@@ -1,6 +1,17 @@
 <?php
 
 return array(
+
+    'icon_family' => null, // eg: fa
+
+    'svg_settings' => [
+        // 'path' => 'svg', // project/resources/svg
+        'path' => null, // disabled
+        'default_attributes' => [
+            'class' => 'svg',
+        ]
+    ],
+
     'default' => [
         'auto_activate' => true,
         'activate_parents' => true,
