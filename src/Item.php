@@ -331,7 +331,7 @@ class Item
         }
 
         if ($mergeAttributes) {
-            $defaultAttributes = config("laravel-menu.settings.svg_settings.default_attributes", []);
+            $defaultAttributes = config("laravel-menu.config.svg-settings.default-attributes", []);
 
             if (isset($defaultAttributes['class'])) {
                 if ($class === null) {
@@ -414,7 +414,7 @@ class Item
      */
     private function addIcon(string $name, array $attributes, bool $isAppend = false): void
     {
-        $class = config('laravel-menu.settings.icon_family').' '.$name;
+        $class = config('laravel-menu.config.icon-family').' '.$name;
 
         if (isset($attributes['class'])) {
             $class .= ' '.$attributes['class'];

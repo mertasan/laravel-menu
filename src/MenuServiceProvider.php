@@ -19,8 +19,7 @@ class MenuServiceProvider extends BaseServiceProvider
      */
     public function register()
     {
-        $this->mergeConfigFrom(__DIR__.'/../config/settings.php', 'laravel-menu.settings');
-        $this->mergeConfigFrom(__DIR__.'/../config/views.php', 'laravel-menu.views');
+        $this->mergeConfigFrom(__DIR__.'/../config/laravel-menu.php', 'laravel-menu');
         $this->registerSvgIcons();
 
         $this->app->singleton('menu', function ($app) {
@@ -83,7 +82,7 @@ class MenuServiceProvider extends BaseServiceProvider
         });
 
         Blade::directive('data_toggle_attribute', function ($expression) {
-            return config('laravel-menu.settings.default.data_toggle_attribute');
+            return config('laravel-menu.menus.default.data_toggle_attribute');
         });
     }
 
@@ -94,7 +93,7 @@ class MenuServiceProvider extends BaseServiceProvider
      */
     private function registerSvgIcons ()
     {
-        $svgPath = config("laravel-menu.settings.svg_settings.path");
+        $svgPath = config("laravel-menu.config.svg-settings.path");
 
         if (!is_null($svgPath)) {
             $this->callAfterResolving(\BladeUI\Icons\Factory::class, function (\BladeUI\Icons\Factory $factory) use($svgPath) {
@@ -116,11 +115,9 @@ class MenuServiceProvider extends BaseServiceProvider
 
         $this->loadViewsFrom(__DIR__.'/../resources/views', 'laravel-menu');
 
-        $this->publishes([
-            __DIR__.'/../resources/views' => base_path('resources/views/vendor/laravel-menu'),
-            __DIR__.'/../config/settings.php' => config_path('laravel-menu/settings.php'),
-            __DIR__.'/../config/views.php' => config_path('laravel-menu/views.php'),
-        ]);
+        $this->publishes([__DIR__ . '/../config/laravel-menu.php' => config_path('laravel-menu.php')], 'laravel-menu-config');
+        $this->publishes([__DIR__ . '/../resources/views' => resource_path('views/vendor/laravel-menu')], 'laravel-menu-views');
+
     }
 
     /**

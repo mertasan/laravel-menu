@@ -788,7 +788,7 @@ class Builder
         if ($optionsFrom === null) {
             $this->conf = $options;
         } else {
-            $defaultOptions = config('laravel-menu.settings');
+            $defaultOptions = config('laravel-menu.menus');
             $name = strtolower($optionsFrom);
             $currentName = strtolower($this->name);
             $menuOptions = false;

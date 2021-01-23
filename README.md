@@ -711,7 +711,7 @@ $menu->add('Home', '#')->link->active();
 
 Laravel Menu does this for you automatically according to the current **URI** the time you register the item.
 
-You can also choose the element to be activated (item or the link) in `settings.php` which resides in package's config directory:
+You can also select the item (item or link) to be enabled from the package's configuration settings:
 
 ```php
 'active_element' => 'item',    // item|link
@@ -719,7 +719,7 @@ You can also choose the element to be activated (item or the link) in `settings.
 
 #### RESTful URLs
 
-RESTful URLs are also supported as long as `restful` option is set as `true` in `config/settings.php` file, E.g. menu item with url `resource` will be activated by `resource/slug` or `resource/slug/edit`.  
+RESTful URLs are also supported as long as `restful` option is set as `true` in `config/laravel-menu.php` (`config('laravel-menu.menus.[default or your menu name].restful')`) file, E.g. menu item with url `resource` will be activated by `resource/slug` or `resource/slug/edit`.  
 
 You might encounter situations where your app is in a sub directory instead of the root directory or your resources have a common prefix; In such case you need to set `rest_base` option to a proper prefix for a better restful activation support. `rest_base` can take a simple string, array of string or a function call as value.
 
@@ -1316,7 +1316,19 @@ This is how your Bootstrap code is going to look like:
 </nav>
 ```
 
-In case you are using bootstrap 5 (currently in beta) you need to set the `data-toggle-attribute` option from `data-toggle` to `data-bs-toggle` in your `config/laravel-menu/settings.php`.
+In case you are using bootstrap 5 (currently in beta) you need to set the `data-toggle-attribute` option from `data-toggle` to `data-bs-toggle` in your `config/laravel-menu.php`.
+
+```php
+return [
+    ...
+    'menus' => [
+        'default' => [
+            'data-toggle-attribute' => 'data-toggle',
+        ],
+    ],
+    ...
+];
+```
 
 #### Adding class attributes to child items
 
@@ -1587,9 +1599,10 @@ echo (isset($controlItem)) ? $controlItem->asUl(
 
 ```php
 return [
-'
     ...
-    'icon_family' => 'fa', // class="fa [other classes]" [ or null ]
+    'config' => [
+        'icon-family' => 'fa', // class="fa [other classes]" [ or null ]
+    ]
     ...
 ];
 ```
@@ -1627,15 +1640,16 @@ $menu->add('Others')->icon('fa-archive')->appendIcon('fa-caret-right');
 
 ```php
 return [
-'
     ...
-    'svg_settings' => array(
-        'path' => 'svg', // project/resources/svg
-        'default_attributes' => array(
-            'class' => 'svg',
-            'fill' => 'none'
-        )
-    ),
+    'config' => [
+        'svg-settings' => [
+            'path' => 'svg', // project/resources/svg
+            'default-attributes' => array(
+                'class' => 'svg',
+                'fill' => 'none'
+            )
+        ],
+    ]
     ...
 ];
 ```
@@ -1701,7 +1715,7 @@ $menu->add('Home')->svg('home')->appendSvg('caret');
 
 ## Configuration
 
-You can adjust the behavior of the menu builder in `config/settings.php` file. Currently it provide a few options out of the box:
+You can adjust the behavior of the menu builder in `config/laravel-menu.php` file. Currently it provide a few options out of the box:
 
 * **auto_activate** Automatically activates menu items based on the current URI
 * **activate_parents** Activates the parents of an active item
@@ -1715,16 +1729,18 @@ You're also able to override the default settings for each menu. To override set
 
 ```php
 return [
-    'default' => [
-        'auto_activate'    => true,
-        'activate_parents' => true,
-        'active_class'     => 'active',
-        'active_element'   => 'item',    // item|link
-        'restful'          => true,
-    ],
-    'yourmenuname' => [
-        'auto_activate'    => false
-    ],
+    'menus' => [
+        'default' => [
+            'auto_activate'    => true,
+            'activate_parents' => true,
+            'active_class'     => 'active',
+            'active_element'   => 'item',    // item|link
+            'restful'          => true,
+        ],
+        'yourmenuname' => [
+            'auto_activate'    => false
+        ],
+    ]
 ];
 ```
 
@@ -1732,19 +1748,21 @@ return [
 
 ```php
 return [
-    'default' => [
-        'auto_activate'    => true,
-        'activate_parents' => true,
-        'active_class'     => 'active',
-        'active_element'   => 'item',    // item|link
-        'restful'          => true,
-    ],
-    'mysidebar' => [
-        'active_class'     => 'active-class-mysidebar',
-    ],
-    'mynavbar' => [
-        'active_class'     => 'active-class-mynavbar',
-    ],
+    'menus' => [
+        'default' => [
+            'auto_activate'    => true,
+            'activate_parents' => true,
+            'active_class'     => 'active',
+            'active_element'   => 'item',    // item|link
+            'restful'          => true,
+        ],
+        'mysidebar' => [
+            'active_class'     => 'active-class-mysidebar',
+        ],
+        'mynavbar' => [
+            'active_class'     => 'active-class-mynavbar',
+        ],
+    ]
 ];
 ```
 

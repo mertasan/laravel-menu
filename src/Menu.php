@@ -89,14 +89,14 @@ class Menu
     }
 
     /**
-     * Loads and merges configuration data.
+     * Loads and merges menu configuration data.
      *
      * @param string $name
      * @return array
      */
     public function loadConf(string $name): array
     {
-        $options = config('laravel-menu.settings');
+        $options = config('laravel-menu.menus');
         $name = strtolower($name);
 
         if (isset($options[$name]) && is_array($options[$name])) {
