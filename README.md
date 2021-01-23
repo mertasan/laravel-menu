@@ -1,9 +1,6 @@
 # Laravel Menu
 
-[![Latest Stable Version](https://poser.pugx.org/mertasan/laravel-menu/v/stable.svg)](https://packagist.org/packages/mertasan/laravel-menu)
-[![Latest Unstable Version](https://poser.pugx.org/mertasan/laravel-menu/v/unstable.svg)](https://packagist.org/packages/mertasan/laravel-menu)
-[![Total Downloads](https://poser.pugx.org/mertasan/laravel-menu/downloads.svg)](https://packagist.org/packages/mertasan/laravel-menu)
-[![License](https://poser.pugx.org/mertasan/laravel-menu/license.svg)](https://packagist.org/packages/mertasan/laravel-menu)
+[![Latest Stable Version](https://poser.pugx.org/mertasan/laravel-menu/v)](//packagist.org/packages/mertasan/laravel-menu) [![Total Downloads](https://poser.pugx.org/mertasan/laravel-menu/downloads)](//packagist.org/packages/mertasan/laravel-menu) [![Latest Unstable Version](https://poser.pugx.org/mertasan/laravel-menu/v/unstable)](//packagist.org/packages/mertasan/laravel-menu) [![License](https://poser.pugx.org/mertasan/laravel-menu/license)](//packagist.org/packages/mertasan/laravel-menu)
 
 ## Documentation
 
