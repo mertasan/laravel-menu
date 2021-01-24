@@ -994,7 +994,7 @@ Menu::make('MyNavBar', function($menu){
 
   $menu->add('About', ['url'  => 'about', 'class' => 'navbar navbar-about dropdown']);  // URL: /about
 
-  $menu->group(['prefix' => 'about'], function($m){
+  $menu->group(['prefix' => 'about'], function($about){
 
     $about->add('Who we are?', 'who-we-are');   // URL: about/who-we-are
     $about->add('What we do?', 'what-we-do');   // URL: about/what-we-do

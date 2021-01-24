@@ -268,9 +268,9 @@ class Builder
      *
      * @param array $new
      * @param array $old
-     * @return string
+     * @return string|null
      */
-    public static function formatGroupPrefix(array $new, array $old): string
+    public static function formatGroupPrefix(array $new, array $old): ?string
     {
         if (isset($new['prefix'])) {
             return trim(Arr::get($old, 'prefix'), '/').'/'.trim($new['prefix'], '/');
@@ -309,9 +309,9 @@ class Builder
      *
      * @param array $new
      * @param array $old
-     * @return string
+     * @return string|null
      */
-    public static function formatGroupClass(array $new, array $old): string
+    public static function formatGroupClass(array $new, array $old): ?string
     {
         if (isset($new['class']) && $new['class'] !== null) {
             $classes = trim(trim(Arr::get($old, 'class')).' '.trim(Arr::get($new, 'class')));
@@ -741,9 +741,9 @@ class Builder
      *
      * @param array $attributes
      *
-     * @return string
+     * @return string|null
      */
-    public static function attributes(array $attributes): string
+    public static function attributes(array $attributes): ?string
     {
         $html = [];
 
@@ -761,10 +761,10 @@ class Builder
      * Build a single attribute element.
      *
      * @param string $key
-     * @param string $value
+     * @param string|null $value
      * @return string
      */
-    protected static function attributeElement(string $key, string $value): ?string
+    protected static function attributeElement(string $key, ?string $value): ?string
     {
         if (is_numeric($key)) {
             $key = $value;
@@ -823,9 +823,9 @@ class Builder
      * @param null  $new
      * @param array $old
      *
-     * @return string
+     * @return string|null
      */
-    public static function mergeStatic($new = null, array $old = []): string
+    public static function mergeStatic($new = null, array $old = []): ?string
     {
         // Parses the string into an associative array
         parse_str(preg_replace('/\s*([\w-]+)\s*=\s*"([^"]+)"/', '$1=$2&', $new), $attrs);
