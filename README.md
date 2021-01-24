@@ -1757,7 +1757,7 @@ $menu->add('Settings')->permission(function($user) {
 });
 
 $menu->add('General Settings')->permission(function($user) {
-    return $user->id === 1;
+    return $user->id < 2;
 });
 ```
 
