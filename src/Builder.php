@@ -4,6 +4,7 @@ namespace Mertasan\Menu;
 
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\URL;
+use Mertasan\Menu\Helpers\Helpers;
 
 /**
  * @method mixed whereNickname(string $nickname);
@@ -49,6 +50,8 @@ class Builder
      */
     protected array $reserved = ['route', 'action', 'url', 'prefix', 'parent', 'secure', 'raw'];
 
+    protected Helpers $helpers;
+
     /**
      * Initializing the menu manager.
      *
@@ -63,6 +66,7 @@ class Builder
         $this->items = new Collection();
 
         $this->conf = $conf;
+        $this->helpers = new Helpers;
     }
 
     /**
@@ -81,6 +85,11 @@ class Builder
         $this->items->push($item);
 
         return $item;
+    }
+
+    public function getHelpers (): Helpers
+    {
+        return $this->helpers;
     }
 
     /**
@@ -633,6 +642,11 @@ class Builder
         $item_tag = in_array($type, array('ul', 'ol')) ? 'li' : $type;
 
         foreach ($this->whereParent($parent) as $item) {
+
+            if ($item->isAllowed() === false) {
+                continue;
+            }
+
             if ($item->link) {
                 $link_attr = $item->link->attr();
                 if (is_callable($item_after_callback)) {

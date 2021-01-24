@@ -5,6 +5,7 @@ namespace Mertasan\Menu;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Request;
+use Mertasan\Menu\Helpers\Helpers;
 
 class Item
 {
@@ -107,6 +108,14 @@ class Item
      */
     private bool $disableActivationByURL = false;
 
+
+    /**
+     * @var callable|bool
+     */
+    private $itemPermission = true;
+
+    protected Helpers $helpers;
+
     /**
      * Creates a new Item instance.
      *
@@ -118,6 +127,7 @@ class Item
     public function __construct(Builder $builder, $id, string $title, $options)
     {
         $this->builder = $builder;
+        $this->helpers = $builder->getHelpers();
         $this->id = $id;
         $this->title = $title;
         $this->nickname = $options['nickname'] ?? Str::camel(Str::ascii($title));
@@ -174,6 +184,7 @@ class Item
      *
      * @param $title
      * @param array $options
+     *
      * @return Item
      */
     public function raw($title, array $options = array()): Item
@@ -312,6 +323,108 @@ class Item
         $this->afterHTML .= $html;
 
         return $this;
+    }
+
+    /**
+     * @param callable $condition
+     * @return $this
+     */
+    public function permission(callable $condition): Item
+    {
+        $this->itemPermission = $condition;
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    public function onlyUsers(): Item
+    {
+        $this->permission(function($user) {
+            return $user !== false;
+        });
+
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    public function onlyGuests(): Item
+    {
+        $this->permission(function($user) {
+            return $user === false;
+        });
+
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    public function onlyAdmins(): Item
+    {
+        return $this->only("admin");
+    }
+
+    /**
+     * @param string $role
+     * @return $this
+     */
+    public function only(string $role): Item
+    {
+        $this->permission(function($user) use($role) {
+            return $user->hasTeamRole($user->currentTeam, $role) ?? false;
+        });
+
+        return $this;
+    }
+
+    /**
+     * @param string $permission
+     * @param mixed $team default: $user->currentTeam
+     * @return $this
+     */
+    public function hasTeamPermission(string $permission, $team = null): Item
+    {
+
+        $this->permission(function($user) use($permission, $team) {
+            $permTeam = is_null($team) ? $user->currentTeam : $team;
+            return $user->hasTeamPermission($permTeam, $permission);
+        });
+
+        return $this;
+    }
+
+    /**
+     * Returns the result of auth permission check for the menu item.
+     *
+     * @param \Illuminate\Contracts\Auth\Authenticatable|null $user In case no user is passed Auth::user() will be used
+     * @return bool
+     */
+    public function isAllowed(\Illuminate\Contracts\Auth\Authenticatable $user = null): bool
+    {
+
+        try {
+            if (is_bool($this->itemPermission) && $this->itemPermission === true) {
+                return true;
+            }
+
+            $user = $user ?: \Auth::user();
+            $itemPermission = $this->itemPermission;
+
+            if (is_callable($itemPermission)) {
+                if (!$itemPermission($user)) {
+                    return false;
+                }
+            } elseif ($user && $user->cannot($itemPermission)) {
+                return false;
+            }
+        } catch (\Throwable $e) {
+            return false;
+        }
+
+        return true;
     }
 
     /**

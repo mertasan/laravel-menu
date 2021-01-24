@@ -1,9 +1,14 @@
-# Laravel Menu
+# Fast and easy HTML menu builder for Laravel
 
-[![Latest Stable Version](https://poser.pugx.org/mertasan/laravel-menu/v)](//packagist.org/packages/mertasan/laravel-menu) [![Total Downloads](https://poser.pugx.org/mertasan/laravel-menu/downloads)](//packagist.org/packages/mertasan/laravel-menu) [![Latest Unstable Version](https://poser.pugx.org/mertasan/laravel-menu/v/unstable)](//packagist.org/packages/mertasan/laravel-menu) [![License](https://poser.pugx.org/mertasan/laravel-menu/license)](//packagist.org/packages/mertasan/laravel-menu)
+[![GitHub release](https://img.shields.io/github/release/mertasan/laravel-menu.svg)](https://github.com/mertasan/laravel-menu/releases/)
+![Packagist PHP Version Support (custom server)](https://img.shields.io/packagist/php-v/mertasan/laravel-menu)
+[![Latest Unstable Version](https://poser.pugx.org/mertasan/laravel-menu/v/unstable)](//packagist.org/packages/mertasan/laravel-menu)
+![GitHub last commit](https://img.shields.io/github/last-commit/mertasan/laravel-menu)
+[![GPLv3 license](https://img.shields.io/badge/License-GPLv3-green.svg)](//github.com/mertasan/laravel-menu/blob/main/LICENSE)
 
 ## Documentation
 
+* [Requirements](#requirements)
 * [Installation](#installation)
 * [Getting Started](#getting-started)
 * [Routing](#routing)
@@ -63,6 +68,10 @@
 * [Contributing](#contributing)
 * [License](#license)
 
+## Requirements
+
+- PHP 7.3 or higher
+- Laravel 7.14 or higher
 
 ## Installation
 
@@ -1718,6 +1727,53 @@ $menu->add('Home')->svg('home')->appendSvg('caret');
     </li>
     ...
 </ul>
+```
+
+## Authentication
+
+[Laravel Authentication](https://laravel.com/docs/8.x/authentication) is used for basic authorization controls (user / guest). And [Laravel Jetstream](https://jetstream.laravel.com/2.x/features/teams.html#inspecting-user-teams) is used for other authorization controls.
+
+**Guests only menu item**
+
+```php
+$menu->add('Login')->onlyGuests();
+```
+
+**Menu item for logged-in users only**
+
+```php
+$menu->add('Logout')->onlyUsers();
+```
+**Admin only menu item**
+
+```php
+$menu->add('Settings')->onlyAdmins();
+```
+
+**Custom authorization controls**
+```php
+$menu->add('Settings')->permission(function($user) {
+    return $user->hasTeamPermission($user->currentTeam, 'management:settings');
+});
+
+$menu->add('General Settings')->permission(function($user) {
+    return $user->id === 1;
+});
+```
+
+**Conditional transactions**
+
+```php
+$menu->add('Models');
+$menu->add('Settings')->onlyAdmins();
+
+if($menu->settings->isAllowed()){
+    $menu->models->add('Products');
+}
+
+if($menu->settings->isAllowed(\App\User::find(10))){
+    $menu->models->add('Categories');
+}
 ```
 
 ## Configuration
