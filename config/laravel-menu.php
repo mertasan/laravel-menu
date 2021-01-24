@@ -3,14 +3,13 @@
 return [
 
     'config' => [
-        'icon-family' => null, // eg: fa
-
-        'svg-settings' => [
-            // 'path' => 'svg', // project/resources/svg
-            'path' => null, // disabled
-            'default-attributes' => [
-                'class' => 'svg',
-            ]
+        'icon_family' => null, // eg: fa
+        'svg_path' => null, // if null, use of svg icons is disabled
+        'icon_attributes' => [
+            'class' => null,
+        ],
+        'svg_attributes' => [
+            'class' => 'svg',
         ]
     ],
 
@@ -23,7 +22,15 @@ return [
             'cascade_data' => true,
             'rest_base' => '',      // string|array
             'active_element' => 'item',  // item|link
-            'data-toggle-attribute' => 'data-toggle',
+            'data_toggle_attribute' => 'data-toggle',
+
+            // Custom icon classes overwrite config.icon_attributes.class
+            'active_icon_class' => null, // If the menu item is active
+            'inactive_icon_class' => null, // If the menu item is not active
+
+            // Custom svg classes overwrite config.svg_attributes.class
+            'active_svg_class' => null, // If the menu item is active
+            'inactive_svg_class' => null, // If the menu item is not active
         ],
     ],
 

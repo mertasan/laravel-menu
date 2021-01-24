@@ -93,7 +93,7 @@ class MenuServiceProvider extends BaseServiceProvider
      */
     private function registerSvgIcons ()
     {
-        $svgPath = config("laravel-menu.config.svg-settings.path");
+        $svgPath = config("laravel-menu.config.svg_path");
 
         if (!is_null($svgPath)) {
             $this->callAfterResolving(\BladeUI\Icons\Factory::class, function (\BladeUI\Icons\Factory $factory) use($svgPath) {

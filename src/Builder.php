@@ -666,9 +666,9 @@ class Builder
             $items .= '<'.$item_tag.self::attributes($all_attributes).'>';
 
             if ($item->link) {
-                $items .= $item->beforeHTML.'<a'.self::attributes($link_attr ?? []).(!empty($item->url()) ? ' href="'.$item->url().'"' : '').'>'.$item->title.'</a>'.$item->afterHTML;
+                $items .= $item->beforeHTML.'<a'.self::attributes($link_attr ?? []).(!empty($item->url()) ? ' href="'.$item->url().'"' : '').'>'.$this->getItemTitleWithIcons($item).'</a>'.$item->afterHTML;
             } else {
-                $items .= $item->title;
+                $items .= $this->getItemTitleWithIcons($item);
             }
 
             if ($item->hasChildren()) {
@@ -686,6 +686,80 @@ class Builder
         }
 
         return $items;
+    }
+
+    public function getItemTitleWithIcons($item): string
+    {
+        return $this->getItemIcon($item).$this->getItemSvg($item).$item->title.$this->getItemSvg($item, true).$this->getItemIcon($item, true);
+    }
+
+    public function getItemIcon($item, $isAppend = false): ?string
+    {
+        if (!$isAppend && !$item->hasBeforeIcon) {
+            return null;
+        }
+
+        if ($isAppend && !$item->hasAfterIcon) {
+            return null;
+        }
+
+        $active_icon_class = $this->conf('active_icon_class');
+        $inactive_icon_class = $this->conf('inactive_icon_class');
+        $icon = ($isAppend ? $item->afterIcon : $item->beforeIcon);
+
+        if ($item->isActive) {
+            $addClass = $active_icon_class;
+        } else {
+            $addClass = $inactive_icon_class;
+        }
+
+        if (!isset($icon['class'])) {
+            $icon['class'] = null;
+        }
+
+        $icon['class'] = trim($icon['class'] . ' ' . $addClass);
+
+        return '<i '.self::attributes($icon).'></i>';
+    }
+
+    public function getItemSvg($item, $isAppend = false): ?string
+    {
+        if (!$isAppend && !$item->beforeSvgPath) {
+            return null;
+        }
+
+        if ($isAppend && !$item->afterSvgPath) {
+            return null;
+        }
+
+        $active_svg_class = $this->conf('active_svg_class');
+        $inactive_svg_class = $this->conf('inactive_svg_class');
+        $svg = ($isAppend ? $item->afterSvg : $item->beforeSvg);
+        $svgPath = ($isAppend ? $item->afterSvgPath : $item->beforeSvgPath);
+
+        if ($item->isActive) {
+            $addClass = $active_svg_class;
+        } else {
+            $addClass = $inactive_svg_class;
+        }
+
+        if (!isset($svg['class'])) {
+            $svg['class'] = null;
+        }
+
+        $svg['class'] = trim($svg['class'] . ' ' . $addClass);
+
+        try {
+            $svg = app(\BladeUI\Icons\Factory::class)->svg($svgPath, '', $svg)->toHtml();
+        } catch (\BladeUI\Icons\Exceptions\SvgNotFound $e) {
+            $svg = null;
+        }
+
+        if (!is_null($svg)) {
+            return $svg;
+        }
+
+        return null;
     }
 
     /**

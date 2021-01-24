@@ -114,7 +114,20 @@ class Item
      */
     private $itemPermission = true;
 
+    /**
+     * @var \Mertasan\Menu\Helpers\Helpers
+     */
     protected Helpers $helpers;
+
+    public bool $hasBeforeIcon = false;
+    public array $beforeIcon = [];
+    public bool $hasAfterIcon = false;
+    public array $afterIcon = [];
+
+    public ?string $beforeSvgPath = null;
+    public array $beforeSvg = [];
+    public ?string $afterSvgPath = null;
+    public array $afterSvg = [];
 
     /**
      * Creates a new Item instance.
@@ -433,26 +446,20 @@ class Item
      * @param array|null  $attributes
      * @param bool        $mergeAttributes
      * @param bool        $isAppend
-     * @return string
      */
     private function addSvg (string $path, $class, $attributes, $mergeAttributes, $isAppend = false): void
     {
 
-        if (isset($attributes['class'])) {
-            $class = $attributes['class'];
-            Arr::forget($attributes, ['class']);
+        if (!isset($attributes['class'])) {
+            $attributes['class'] = null;
         }
+        $attributes['class'] = trim($class . ' '. $attributes['class']);
 
         if ($mergeAttributes) {
-            $defaultAttributes = config("laravel-menu.config.svg-settings.default-attributes", []);
-
+            $defaultAttributes = config("laravel-menu.config.svg_attributes", []);
             if (isset($defaultAttributes['class'])) {
-                if ($class === null) {
-                    $class = $defaultAttributes['class'];
-                }
-                Arr::forget($defaultAttributes, ['class']);
+                $attributes['class'] = trim($defaultAttributes['class']. " " . $attributes['class']);
             }
-
             $attributes = array_merge($defaultAttributes, $attributes);
         } else {
             $attributes = $attributes ?: [];
@@ -461,18 +468,12 @@ class Item
         $path = str_replace('/', '-', $path);
         $path = "laravelmenu-" . $path;
 
-        try {
-            $svg = app(\BladeUI\Icons\Factory::class)->svg($path, $class, $attributes)->toHtml();
-        } catch (\BladeUI\Icons\Exceptions\SvgNotFound $e) {
-            $svg = null;
-        }
-
-        if (!is_null($svg)) {
-            if ($isAppend) {
-                $this->append($svg);
-            } else {
-                $this->prepend($svg);
-            }
+        if ($isAppend) {
+            $this->afterSvgPath = $path;
+            $this->afterSvg = $attributes;
+        } else {
+            $this->beforeSvgPath = $path;
+            $this->beforeSvg = $attributes;
         }
     }
 
@@ -487,6 +488,10 @@ class Item
      */
     public function svg(string $path, $class = null, $attributes = [], $mergeAttributes = true): Item
     {
+        if (config("laravel-menu.config.svg_path") === null) {
+            return $this;
+        }
+
         if (is_array($class)) {
             $mergeAttributes = is_array($attributes) ? true : $attributes;
             $attributes = $class;
@@ -509,6 +514,10 @@ class Item
      */
     public function appendSvg(string $path, $class = null, $attributes = [], $mergeAttributes = true): Item
     {
+        if (config("laravel-menu.config.svg_path") === null) {
+            return $this;
+        }
+
         if (is_array($class)) {
             $mergeAttributes = is_array($attributes) ? true : $attributes;
             $attributes = $class;
@@ -527,19 +536,29 @@ class Item
      */
     private function addIcon(string $name, array $attributes, bool $isAppend = false): void
     {
-        $class = config('laravel-menu.config.icon-family').' '.$name;
+        $class = config('laravel-menu.config.icon_family').' '.$name;
 
-        if (isset($attributes['class'])) {
-            $class .= ' '.$attributes['class'];
-            Arr::forget($attributes, ['class']);
+        if (!isset($attributes['class'])) {
+            $attributes['class'] = null;
         }
 
-        $iconHtml = '<i class="'.trim($class).'" '.$this->builder::attributes($attributes).'></i>';
+        $attributes['class'] = trim($class. " " . $attributes['class']);
 
+        $defaultAttributes = config("laravel-menu.config.icon_attributes", []);
+
+        if (isset($defaultAttributes['class'])) {
+            $attributes['class'] = trim($defaultAttributes['class']. " " . $attributes['class']);
+        }
+
+        $attributes = array_merge($defaultAttributes, $attributes);
+
+        // $iconHtml = '<i class="'.trim($class).'" '.$this->builder::attributes($attributes).'></i>';
         if ($isAppend) {
-            $this->append($iconHtml);
+            $this->afterIcon = $attributes;
+            $this->hasAfterIcon = true;
         } else {
-            $this->prepend($iconHtml);
+            $this->beforeIcon = $attributes;
+            $this->hasBeforeIcon = true;
         }
     }
 
