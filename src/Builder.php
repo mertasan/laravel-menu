@@ -855,11 +855,11 @@ class Builder
      *
      * @param string $key
      * @param mixed  $default
-     * @return string|null
+     * @return mixed
      */
-    public function conf(string $key, $default = null): ?string
+    public function conf(string $key, $default = null)
     {
-        return $this->conf[$key] ?? null;
+        return data_get($this->conf, $key, $default);
     }
 
     /**
