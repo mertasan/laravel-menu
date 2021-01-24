@@ -1994,3 +1994,10 @@ Please see [License File](LICENSE.md) for more information.
 * [Dustin Graham](https://github.com/dustingraham)
 * [Reza Lavarian](https://github.com/lavary)
 * [All Contributors to Lavary](https://github.com/lavary/laravel-menu/graphs/contributors)
+
+
+## Form Generator
+
+Do you need an easy and useful form generator? Try [tanthammar/tall-forms](https://github.com/tanthammar/tall-forms)
+
+> Laravel Livewire (TALL-stack) [form generator](https://github.com/tanthammar/tall-forms) with realtime validation, file uploads, array fields, blade form input components and more.
