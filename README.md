@@ -1729,7 +1729,7 @@ $menu->add('Home')->svg('home')->appendSvg('caret');
 </ul>
 ```
 
-## Authentication
+## Auth
 
 [Laravel Authentication](https://laravel.com/docs/8.x/authentication) is used for basic authorization controls (user / guest). And [Laravel Jetstream](https://jetstream.laravel.com/2.x/features/teams.html#inspecting-user-teams) is used for other authorization controls.
 
