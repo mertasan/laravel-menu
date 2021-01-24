@@ -39,6 +39,9 @@
     - [Disable activation](#disable-activation)
 * [Inserting a Separator](#inserting-a-separator)
 * [Append and Prepend](#append-and-prepend)
+* [Item Authorization](#authorization)
+* [Icons](#icons)
+* [Svg Icons](#svg-icons)
 * [Before and After](#before-and-after)
 * [Raw Items](#raw-items)
 * [Menu Groups](#menu-groups)
@@ -1864,7 +1867,7 @@ Menu::make('myNavbar', function(Builder $menu){
 </ul>
 ```
 
-## Auth
+## Authorization
 
 [Laravel Authentication](https://laravel.com/docs/8.x/authentication) is used for basic authorization controls (user / guest). And [Laravel Jetstream](https://jetstream.laravel.com/2.x/features/teams.html#inspecting-user-teams) is used for other authorization controls.
 
