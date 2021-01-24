@@ -1952,6 +1952,21 @@ Menu::make('MyNavbar', function ($menu) {
 */
 ```
 
+## Future
+
+TODO 
+
+- [x] Custom menu options when making a menu and shared options.
+- [x] Menu item icons
+- [x] Authorizations for menu items
+- [ ] Special configurations and methods for [tailwindcss](https://github.com/tailwindlabs/tailwindcss)
+- [ ] Dropdown menu items with [Alpine.js](https://github.com/alpinejs/alpine)
+- [ ] Real-time badges with [Livewire](https://github.com/livewire/livewire) (eg: notification badges)
+
+* And your suggestions.
+
+The TODO list will continue to be updated.
+
 ## If You Need Help
 
 Please submit all issues and questions using GitHub issues and I will try to help you.
