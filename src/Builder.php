@@ -52,16 +52,19 @@ class Builder
 
     protected Helpers $helpers;
 
+    protected array $config;
+
     /**
      * Initializing the menu manager.
      *
      * @param string $name
+     * @param array  $config
      * @param array  $conf
      */
-    public function __construct(string $name, array $conf)
+    public function __construct(string $name, array $config, array $conf)
     {
         $this->name = $name;
-
+        $this->config = $config;
         // creating a laravel collection for storing menu items
         $this->items = new Collection();
 
@@ -220,6 +223,33 @@ class Builder
         $closure($this);
 
         array_pop($this->groupStack);
+    }
+
+    /**
+     * Create a menu dropdown
+     *
+     * @param string         $title
+     * @param array|callable $optionsOrClosure
+     * @param callable|null  $closure
+     * @return \Mertasan\Menu\Dropdown
+     */
+    public function dropdown(string $title, $optionsOrClosure, $closure = null): Dropdown
+    {
+        if (is_callable($optionsOrClosure)) {
+            $options = is_array($closure) ? $closure : [];
+            $closure = $optionsOrClosure;
+        } else {
+            $options = $optionsOrClosure;
+        }
+        $id = $options['id'] ?? $this->id();
+
+        $item = new Dropdown($this, $id, $title, $options);
+        $this->items->push($item);
+        $this->updateGroupStack($options);
+        $closure($this);
+        array_pop($this->groupStack);
+
+        return $item;
     }
 
     /**
@@ -647,6 +677,12 @@ class Builder
                 continue;
             }
 
+            if ($item->isDropdown()) {
+                // This is how array_merge in the loop is used for better performance.
+                $childAttributesMerge = [$this->conf('dropdown_defaults.child_wrapper_attributes', []), $children_attributes];
+                $children_attributes = array_merge([], ...$childAttributesMerge);
+            }
+
             if ($item->link) {
                 $link_attr = $item->link->attr();
                 if (is_callable($item_after_callback)) {
@@ -659,16 +695,48 @@ class Builder
                     ]);
                 }
             }
-            $all_attributes = array_merge($item_attributes, $item->attr()) ;
-            if (isset($item_attributes['class'])) {
-                $all_attributes['class'] .= ' ' . $item_attributes['class'];
+            if (!is_null($item->tag)){
+                $item_tag = $item->tag;
             }
-            $items .= '<'.$item_tag.self::attributes($all_attributes).'>';
 
-            if ($item->link) {
-                $items .= $item->beforeHTML.'<a'.self::attributes($link_attr ?? []).(!empty($item->url()) ? ' href="'.$item->url().'"' : '').'>'.$this->getItemTitleWithIcons($item).'</a>'.$item->afterHTML;
+            $linkWrapper = true;
+            if ($item->hasParent()) {
+                $parentItem = $this->whereId($item->parent)->first();
+                if (!$parentItem->isDropdown() || ($parentItem->isDropdown() && $this->conf('dropdown_defaults.child_link_wrapper') !== true)) {
+                    $linkWrapper = false;
+                }
+            }
+
+            if ($linkWrapper) {
+                $all_attributes = array_merge($item_attributes, $item->attr()) ;
+                if (!$item->isActive) {
+                    $all_attributes['class'] = self::formatGroupClass(array('class' => $this->conf('inactive_class')), $all_attributes);
+                }
+                if (isset($item_attributes['class'])) {
+                    $all_attributes['class'] .= ' ' . $item_attributes['class'];
+                }
+                $items .= '<'.$item_tag.self::attributes($all_attributes).'>';
+            }
+
+            if ($item->isDropdown()) {
+                switch ($item->dropdownType) {
+                    case 'button':
+                        $items .= $item->beforeHTML.'<button type="button" '.self::attributes($link_attr ?? []).'>'.$this->getItemTitleWithIcons($item).'</button>'.$item->afterHTML;
+                    break;
+                    case 'a':
+                        $items .= $item->beforeHTML.'<a '.self::attributes($link_attr ?? []).' href="#">'.$this->getItemTitleWithIcons($item).'</a>'.$item->afterHTML;
+                    break;
+                    default:
+                        $items .= $item->beforeHTML.'<'.$item->dropdownTag.''.self::attributes($link_attr ?? []).'>'.$this->getItemTitleWithIcons($item).'</'.$item->dropdownTag.'>'.$item->afterHTML;
+                    break;
+                }
+
             } else {
-                $items .= $this->getItemTitleWithIcons($item);
+                if ($item->link) {
+                    $items .= $item->beforeHTML.'<a'.self::attributes($link_attr ?? []).(!empty($item->url()) ? ' href="'.$item->url().'"' : '').'>'.$this->getItemTitleWithIcons($item).'</a>'.$item->afterHTML;
+                } else {
+                    $items .= $this->getItemTitleWithIcons($item);
+                }
             }
 
             if ($item->hasChildren()) {
@@ -678,7 +746,9 @@ class Builder
                 $items .= "</{$type}>";
             }
 
-            $items .= "</{$item_tag}>";
+            if ($linkWrapper) {
+                $items .= "</{$item_tag}>";
+            }
 
             if ($item->divider) {
                 $items .= '<'.$item_tag.self::attributes($item->divider).'></'.$item_tag.'>';
@@ -863,6 +933,20 @@ class Builder
     }
 
     /**
+     * @param string|null $key
+     * @param null        $default
+     * @return mixed
+     */
+    public function getConfig (?string $key = null, $default = null)
+    {
+        if (is_null($key)) {
+            return $this->config;
+        }
+
+        return data_get($this->config, $key, $default);
+    }
+
+    /**
      * Add custom options
      * One-time special additions can be made to the options to be applied to the menu.
      *
@@ -876,7 +960,7 @@ class Builder
         if ($optionsFrom === null) {
             $this->conf = $options;
         } else {
-            $defaultOptions = config('laravel-menu.menus');
+            $defaultOptions = $this->getConfig('menus');
             $name = strtolower($optionsFrom);
             $currentName = strtolower($this->name);
             $menuOptions = false;
@@ -887,7 +971,7 @@ class Builder
                 $menuOptions = $defaultOptions[$currentName];
             }
 
-            $this->conf = array_merge($defaultOptions["default"], ($menuOptions ?: []), $options);
+            $this->conf = $this->helpers::arrayExtend($defaultOptions["default"], ($menuOptions ?: []), $options);
         }
     }
 
