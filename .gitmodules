@@ -1,6 +1,0 @@
-[submodule "website/docs"]
-	path = website/docs
-	url = https://github.com/mertasan/laravel-menu-docs
-[submodule "website/examples"]
-	path = website/examples
-	url = https://github.com/mertasan/laravel-menu-examples
