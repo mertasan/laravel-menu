@@ -1,0 +1,22 @@
+- ## Overview
+    - [Installation](/docs/{{version}}/installation)
+    - [Getting Started](/docs/{{version}}/getting-started)
+    - [Configuration](/docs/{{version}}/configuration)
+- ## Menu Item
+    - [Routing](/docs/{{version}}/routing)
+    - [Sub Items](/docs/{{version}}/sub-items)
+    - [Item's ID and Nicknames](/docs/{{version}}/items-id-nickname)
+    - [Referring to Items](/docs/{{version}}/referring-to-items)
+    - [HTML Attributes](/docs/{{version}}/html-attributes)
+    - [Inserting to Items](/docs/{{version}}/inserting-to-items)
+    - [Icons](/docs/{{version}}/icons)
+    - [Item Groups](/docs/{{version}}/item-groups)
+    - [Item Authorization](/docs/{{version}}/item-authorization)
+    - [Filtering and Sorting](/docs/{{version}}/filtering-and-sorting)
+    - [Meta Data](/docs/{{version}}/meta-data)
+- ## Menu
+    - [Referring to Menu](/docs/{{version}}/referring-to-menu)
+    - [Rendering Methods](/docs/{{version}}/rendering-methods)
+    - [Subset Menus](/docs/{{version}}/subset-menus)
+    - [Menu Settings](/docs/{{version}}/menu-settings)
+- [Advanced Usage](/docs/{{version}}/advanced-usage)
