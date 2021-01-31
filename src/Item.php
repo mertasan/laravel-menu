@@ -129,6 +129,14 @@ class Item
     public ?string $afterSvgPath = null;
     public array $afterSvg = [];
 
+    public bool $isDropdown = false;
+
+    /**
+     * Custom HTML element tag of the item
+     * @var string|null
+     */
+    public ?string $tag = null;
+
     /**
      * Creates a new Item instance.
      *
@@ -231,7 +239,7 @@ class Item
      */
     public function group(array $attributes, callable $closure): void
     {
-        $this->builder->group($attributes, $closure, $this);
+        $this->builder->group($attributes, $closure);
     }
 
     /**
@@ -456,7 +464,8 @@ class Item
         $attributes['class'] = trim($class . ' '. $attributes['class']);
 
         if ($mergeAttributes) {
-            $defaultAttributes = config("laravel-menu.config.svg_attributes", []);
+            $defaultAttributes = $this->builder->getConfig('config.svg_attributes', []);
+            // $defaultAttributes = config("laravel-menu.config.svg_attributes", []);
             if (isset($defaultAttributes['class'])) {
                 $attributes['class'] = trim($defaultAttributes['class']. " " . $attributes['class']);
             }
@@ -488,7 +497,8 @@ class Item
      */
     public function svg(string $path, $class = null, $attributes = [], $mergeAttributes = true): Item
     {
-        if (config("laravel-menu.config.svg_path") === null) {
+        // if (config("laravel-menu.config.svg_path") === null) {
+        if ($this->builder->getConfig('config.svg_path') === null) {
             return $this;
         }
 
@@ -514,7 +524,8 @@ class Item
      */
     public function appendSvg(string $path, $class = null, $attributes = [], $mergeAttributes = true): Item
     {
-        if (config("laravel-menu.config.svg_path") === null) {
+        // if (config("laravel-menu.config.svg_path") === null) {
+        if ($this->builder->getConfig('config.svg_path') === null) {
             return $this;
         }
 
@@ -536,7 +547,8 @@ class Item
      */
     private function addIcon(string $name, array $attributes, bool $isAppend = false): void
     {
-        $class = config('laravel-menu.config.icon_family').' '.$name;
+        // $class = config('laravel-menu.config.icon_family').' '.$name;
+        $class = $this->builder->getConfig('config.icon_family').' '.$name;
 
         if (!isset($attributes['class'])) {
             $attributes['class'] = null;
@@ -544,7 +556,8 @@ class Item
 
         $attributes['class'] = trim($class. " " . $attributes['class']);
 
-        $defaultAttributes = config("laravel-menu.config.icon_attributes", []);
+        // $defaultAttributes = config("laravel-menu.config.icon_attributes", []);
+        $defaultAttributes = $this->builder->getConfig('config.icon_attributes', []);
 
         if (isset($defaultAttributes['class'])) {
             $attributes['class'] = trim($defaultAttributes['class']. " " . $attributes['class']);
@@ -822,6 +835,47 @@ class Item
         }
 
         return true;
+    }
+
+
+    /**
+     * Dropdown item and children of the item.
+     *
+     * @param string         $title
+     * @param array|callable $optionsOrClosure
+     * @param callable|null  $closure
+     * @return Item
+     */
+    public function dropdown(string $title, $optionsOrClosure, $closure = null): Item
+    {
+        if (is_callable($optionsOrClosure)) {
+            $options = is_array($closure) ? $closure : [];
+            $closure = $optionsOrClosure;
+        } else {
+            $options = $optionsOrClosure;
+        }
+        return $this->builder->dropdown($title, $options, $closure);
+    }
+
+    /**
+     * @return bool
+     */
+    public function isDropdown (): bool
+    {
+        return $this->isDropdown;
+    }
+
+    /**
+     * Set the custom HTML element tag of the item.
+     *
+     * @param string $itemTag
+     * @return Item
+     */
+    public function tag(string $itemTag): Item
+    {
+        $this->tag = $itemTag;
+
+        return $this;
     }
 
     /**

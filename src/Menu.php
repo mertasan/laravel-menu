@@ -22,6 +22,8 @@ class Menu
      */
     protected array $menu = [];
 
+    protected array $config = [];
+
     /**
      * Initializing the Menu manager
      */
@@ -72,8 +74,12 @@ class Menu
             return null;
         }
 
+        if (!count($this->config)) {
+            $this->config = config('laravel-menu');
+        }
+
         if (!Arr::exists($this->menu, $name)) {
-            $this->menu[$name] = new Builder($name, array_merge($this->loadConf($name), $options));
+            $this->menu[$name] = new Builder($name, $this->getConfig(), array_merge($this->loadConf($name), $options));
         }
 
         // Registering the items
@@ -89,6 +95,32 @@ class Menu
     }
 
     /**
+     * This method is used for the documentation site.
+     *
+     * @param string $path
+     * @return Menu
+     */
+    public function withConfig(string $path): Menu
+    {
+        $this->config = config($path);
+        return $this;
+    }
+
+    /**
+     * @param string|null $key
+     * @param null        $default
+     * @return mixed
+     */
+    public function getConfig (?string $key = null, $default = null)
+    {
+        if (is_null($key)) {
+            return $this->config;
+        }
+
+        return data_get($this->config, $key, $default);
+    }
+
+    /**
      * Loads and merges menu configuration data.
      *
      * @param string $name
@@ -96,7 +128,7 @@ class Menu
      */
     public function loadConf(string $name): array
     {
-        $options = config('laravel-menu.menus');
+        $options = $this->getConfig('menus');
         $name = strtolower($name);
 
         if (isset($options[$name]) && is_array($options[$name])) {
