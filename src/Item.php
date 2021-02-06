@@ -119,6 +119,11 @@ class Item
      */
     protected Helpers $helpers;
 
+    /**
+     * @var int
+     */
+    protected int $level = 0;
+
     public bool $hasBeforeIcon = false;
     public array $beforeIcon = [];
     public bool $hasAfterIcon = false;
@@ -155,6 +160,10 @@ class Item
 
         $this->attributes = $this->builder->extractAttributes($options);
         $this->parent = (is_array($options) && isset($options['parent'])) ? $options['parent'] : null;
+
+        if ($this->hasParent()) {
+            $this->level = $this->builder->findLevel($this->parent);
+        }
 
         // Storing path options with each link instance.
         if (!is_array($options)) {
@@ -854,6 +863,9 @@ class Item
         } else {
             $options = $optionsOrClosure;
         }
+
+        $options['parent'] = $this->id;
+
         return $this->builder->dropdown($title, $options, $closure);
     }
 
@@ -876,6 +888,16 @@ class Item
         $this->tag = $itemTag;
 
         return $this;
+    }
+
+    /**
+     * Get level
+     *
+     * @return int
+     */
+    public function getLevel(): int
+    {
+        return $this->level;
     }
 
     /**

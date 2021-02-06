@@ -186,6 +186,15 @@ class Builder
     }
 
     /**
+     * @param mixed $parentID
+     * @return int
+     */
+    public function findLevel($parentID): int
+    {
+        return $this->whereId($parentID)->first()->getLevel() + 1;
+    }
+
+    /**
      * Returns the first item marked as active.
      *
      * @return Item|null
@@ -244,9 +253,10 @@ class Builder
         $id = $options['id'] ?? $this->id();
 
         $item = new Dropdown($this, $id, $title, $options);
+
         $this->items->push($item);
         $this->updateGroupStack($options);
-        $closure($this);
+        $closure($item);
         array_pop($this->groupStack);
 
         return $item;
